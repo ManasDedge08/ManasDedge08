@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @ManasDedge08
-- 🌱 I’m currently learning computer engineering diploma.
+- 🌱 I’m currently learning computer engineering.
 - 📫 dedgemanas07@gmail.com
 
 <!---
