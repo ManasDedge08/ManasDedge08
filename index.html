@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manas Dedge | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@300;400;500&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- General & Theme Variables --- */
+        :root {
+            --bg-color: #121212;
+            --primary-color: #1A1A1A;
+            --secondary-color: #2E2E2E;
+            --accent-color: #39FF14; /* Default: Neon Green */
+            --text-color: #E0E0E0;
+            --text-muted-color: #808080;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease;
+        }
+        
+        /* --- Fade Transition for View Switching --- */
+        .view {
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .view.hidden {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Ensure hidden view doesn't affect scroll */
+            overflow: hidden;
+        }
+
+        /* --- Terminal View Styles --- */
+        #terminal-view {
+            font-family: 'Source Code Pro', monospace;
+            padding: 1.5rem;
+            height: 100vh;
+            overflow-y: auto;
+            cursor: text;
+        }
+        
+        #terminal-output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+        }
+
+        .prompt-user { color: var(--accent-color); font-weight: 500;}
+        .prompt-host { color: var(--text-muted-color); }
+        .prompt-symbol { color: var(--text-color); }
+        
+        .command-output .title {
+            color: var(--accent-color);
+            font-weight: 500;
+            text-decoration: underline;
+        }
+        
+        .command-output a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .command-output a:hover {
+            text-decoration: underline;
+        }
+
+        #input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-family: 'Source Code Pro', monospace;
+            font-size: 1em;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: var(--accent-color);
+            animation: blink-caret 1s step-end infinite;
+        }
+        
+        #gui-switch {
+            color: var(--text-muted-color);
+            margin-top: 20px;
+        }
+        
+        #gui-switch a {
+            color: var(--accent-color);
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        @keyframes blink-caret {
+          from, to { background-color: transparent }
+          50% { background-color: var(--accent-color); }
+        }
+
+        /* --- GUI View Styles --- */
+        #gui-view {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            font-weight: 300;
+        }
+        
+        #gui-view h1, #gui-view h2, #gui-view h3, #gui-view h4, #gui-view h5, #gui-view h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header {
+            background-color: rgba(18, 18, 18, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--accent-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: color 0.4s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent-color);
+        }
+        
+        .mobile-nav-toggle {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .section {
+            padding: 6rem 0;
+            border-bottom: 1px solid var(--primary-color);
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 4rem;
+        }
+        
+        .section-title span {
+            color: var(--accent-color);
+        }
+        
+        #about {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .typing-text {
+            color: var(--accent-color);
+            border-right: .15em solid var(--accent-color);
+            white-space: nowrap;
+            overflow: hidden;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted-color);
+            max-width: 700px;
+            margin: 0 auto 2rem auto;
+            font-weight: 300;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .social-links a {
+            color: var(--text-muted-color);
+            font-size: 1.5rem;
+            transition: color 0.4s, transform 0.4s;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+            transform: translateY(-5px);
+        }
+
+        .projects-grid, .setup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card, .setup-card {
+            background-color: rgba(26, 26, 26, 0.5);
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+            padding: 2.5rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            border: 1px solid var(--secondary-color);
+        }
+
+        .project-card:hover, .setup-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.15);
+        }
+
+        .project-card h3, .setup-card h3 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+        
+        .project-card ul, .setup-card ul {
+            list-style-type: none;
+        }
+        
+        .project-card ul li, .setup-card ul li {
+            color: var(--text-muted-color);
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .project-card ul li::before, .setup-card ul li::before {
+            content: '→';
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            font-weight: 600;
+        }
+
+        .skills-container {
+            text-align: center;
+        }
+        
+        .skills-category {
+            margin-bottom: 3rem;
+        }
+        
+        .skills-category h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .skill-tag {
+            background-color: var(--secondary-color);
+            color: var(--text-muted-color);
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            border: 1px solid transparent;
+        }
+        
+        .skill-tag:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: rgba(57, 255, 20, 0.1);
+            transform: scale(1.05);
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: var(--secondary-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+        
+        .timeline-item.left { left: 0; }
+        .timeline-item.right { left: 50%; }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            right: -8px;
+            background-color: var(--accent-color);
+            border: 3px solid var(--bg-color);
+            top: 35px;
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        
+        .timeline-item.right::after { left: -8px; }
+        
+        .timeline-content {
+            padding: 20px 30px;
+            background-color: var(--primary-color);
+            position: relative;
+            border-radius: 6px;
+        }
+        
+        .timeline-item.left .timeline-content { text-align: right; }
+        
+        .timeline-content h3 { font-size: 1.4rem; color: var(--text-color); }
+        .timeline-content p { color: var(--text-muted-color); font-size: 0.9rem; }
+
+        .achievements-list {
+            max-width: 700px;
+            margin: 0 auto;
+            list-style: none;
+        }
+        
+        .achievements-list li {
+            background: transparent;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--secondary-color);
+            transition: border-color 0.4s ease, background-color 0.4s ease;
+        }
+
+        .achievements-list li:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(57, 255, 20, 0.05);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            background-color: var(--primary-color);
+            color: var(--text-muted-color);
+            font-size: 0.9rem;
+        }
+        
+        #visit-counter {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+        }
+        #visit-count {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        @keyframes typing {
+          from { width: 0 }
+          to { width: 100% }
+        }
+        
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            #terminal-view {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 65px; /* Adjust based on header height */
+                left: 0;
+                width: 100%;
+                background-color: var(--primary-color);
+                padding: 1rem 0;
+                text-align: center;
+                border-bottom: 1px solid var(--secondary-color);
+            }
+            .nav-links.active { display: flex; }
+            .mobile-nav-toggle { display: block; }
+
+            .section {
+                padding: 4rem 0;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+                margin-bottom: 3rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .project-card, .setup-card {
+                padding: 2rem;
+            }
+
+            .timeline::after { left: 20px; }
+            .timeline-item { width: 100%; padding-left: 50px; padding-right: 15px; }
+            .timeline-item.left, .timeline-item.right { left: 0; }
+            .timeline-item::after { left: 13px; }
+            .timeline-item.left .timeline-content, .timeline-item.right .timeline-content { text-align: left; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="terminal-view" class="view" onclick="document.getElementById('terminal-input').focus()">
+        <div id="terminal-output"></div>
+        <div id="input-line">
+            <span id="prompt" class="prompt"></span>
+            <input type="text" id="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <span class="cursor"></span>
+        </div>
+    </div>
+
+    <div id="gui-view" class="view hidden">
+        <header class="header">
+            <div class="container navbar">
+                <a href="#" class="logo">Manas<span>.</span></a>
+                <ul class="nav-links" id="nav-menu">
+                    <li><a href="#about" class="nav-btn active">About</a></li>
+                    <li><a href="#projects" class="nav-btn">Projects</a></li>
+                    <li><a href="#skills" class="nav-btn">Skills</a></li>
+                    <li><a href="#setup" class="nav-btn">Setup</a></li>
+                    <li><a href="#education" class="nav-btn">Education</a></li>
+                    <li><a href="#achievements" class="nav-btn">Achievements</a></li>
+                </ul>
+                 <button class="mobile-nav-toggle" id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+            </div>
+        </header>
+        <main>
+            <section id="about" class="section">
+                <div class="container hero-content">
+                    <div>
+                        <h1><span class="typing-text" id="typing-name">Manas Dedge</span></h1>
+                        <p>A passionate computer science student with a love for open-source tools, self-hosting, and building useful tech projects from scratch. I believe in continuous learning and enjoy sharing knowledge with others.</p>
+                        <div class="social-links">
+                            <a href="mailto:dedgemanas@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a>
+                            <a href="https://linkedin.com/in/manas-dedge" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                            <a href="https://github.com/ManasDedge08" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="projects" class="section">
+                <div class="container">
+                    <h2 class="section-title">Selected <span>Works</span></h2>
+                    <div class="projects-grid">
+                        <div class="project-card">
+                            <h3>Driver Drowsiness Detection</h3>
+                            <ul>
+                                <li>Created a real-time detection system using OpenCV and Dlib.</li>
+                                <li>Tracked eye aspect ratio to trigger safety alerts.</li>
+                                <li>Integrated the system with a Raspberry Pi for real-world testing.</li>
+                            </ul>
+                        </div>
+                        <div class="project-card">
+                            <h3>Mental Health Assessment App</h3>
+                            <ul>
+                                <li>Developed a full-stack web app for student mental health tracking.</li>
+                                <li>Handled UI/UX design, form logic, and backend integration.</li>
+                                <li>Used HTML, CSS, JS, and Firebase for real-time data storage.</li>
+                            </ul>
+                        </div>
+                        <div class="project-card">
+                            <h3>Self-Hosted Media Server</h3>
+                            <ul>
+                                <li>Built a personal streaming server using Jellyfin, TailScale, and OpenSSH.</li>
+                                <li>Utilized an old laptop as a dedicated server for 24/7 media access.</li>
+                                <li>Gained experience with networking, port forwarding, and Linux server setup.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="skills" class="section">
+                <div class="container skills-container">
+                    <h2 class="section-title">Capabilities<span>.</span></h2>
+                    <div class="skills-category">
+                        <h3>Programming Languages</h3>
+                        <div class="skills-grid">
+                            <span class="skill-tag">C</span>
+                            <span class="skill-tag">C++</span>
+                            <span class="skill-tag">Java</span>
+                            <span class="skill-tag">Python</span>
+                        </div>
+                    </div>
+                    <div class="skills-category">
+                        <h3>Tools & Technologies</h3>
+                        <div class="skills-grid">
+                            <span class="skill-tag">Linux</span>
+                            <span class="skill-tag">Git & GitHub</span>
+                            <span class="skill-tag">OpenSSH</span>
+                            <span class="skill-tag">Jellyfin</span>
+                            <span class="skill-tag">TailScale</span>
+                            <span class="skill-tag">Firebase</span>
+                            <span class="skill-tag">Self-hosting</span>
+                        </div>
+                    </div>
+                     <div class="skills-category">
+                        <h3>Soft Skills</h3>
+                        <div class="skills-grid">
+                            <span class="skill-tag">Strong Communication</span>
+                            <span class="skill-tag">Team Building</span>
+                            <span class="skill-tag">Problem Solving</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="setup" class="section">
+                <div class="container">
+                    <h2 class="section-title">My <span>Setup</span></h2>
+                    <div class="setup-grid">
+                        <div class="setup-card">
+                            <h3><i class="fas fa-server" style="margin-right: 10px; color: var(--accent-color);"></i>Hardware</h3>
+                            <ul>
+                                <li>Main PC: Custom Build Desktop</li>
+                                <li>Home Server: Repurposed Laptop</li>
+                                <li>Prototyping: Raspberry Pi 4</li>
+                            </ul>
+                        </div>
+                        <div class="setup-card">
+                            <h3><i class="fab fa-linux" style="margin-right: 10px; color: var(--accent-color);"></i>Operating System</h3>
+                            <ul>
+                                <li>Daily Driver: Arch Linux</li>
+                                <li>Server OS: Ubuntu Server</li>
+                                <li>Shell: Zsh with Oh My Zsh</li>
+                            </ul>
+                        </div>
+                        <div class="setup-card">
+                            <h3><i class="fas fa-code" style="margin-right: 10px; color: var(--accent-color);"></i>Dev Tools</h3>
+                            <ul>
+                                <li>Code Editor: Visual Studio Code</li>
+                                <li>Version Control: Git</li>
+                                <li>Browser: Firefox Developer Edition</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="education" class="section">
+                <div class="container">
+                    <h2 class="section-title">My <span>Journey</span></h2>
+                    <div class="timeline">
+                        <div class="timeline-item left">
+                            <div class="timeline-content">
+                                <h3>B.Tech in Computer Science</h3>
+                                <p>DES Pune University, Pune</p>
+                                <p>2024 - 2027 | CGPA: 7.71 (Sem III)</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item right">
+                            <div class="timeline-content">
+                                <h3>Diploma in Computer Engineering</h3>
+                                <p>Zeal Polytechnic, Pune</p>
+                                <p>2021 - 2024 | 74.66%</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item left">
+                            <div class="timeline-content">
+                                <h3>Secondary School Certificate</h3>
+                                <p>M.S. Golwalkar Guruji Vidyalaya</p>
+                                <p>2020 - 2021 | 71.80%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="achievements" class="section">
+                <div class="container">
+                    <h2 class="section-title"><span>Accolades</span> & Hobbies</h2>
+                     <ul class="achievements-list">
+                        <li><i class="fas fa-trophy" style="color: var(--accent-color); margin-right: 15px;"></i>Winners of the Zonal Football League.</li>
+                        <li><i class="fas fa-medal" style="color: var(--accent-color); margin-right: 15px;"></i>Runner Ups in Inter-Zonal Football League.</li>
+                        <li><i class="fas fa-chess-king" style="color: var(--accent-color); margin-right: 15px;"></i>Winner in college chess championship.</li>
+                     </ul>
+                </div>
+            </section>
+        </main>
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2025 Manas Dedge. Built with code and coffee.</p>
+                <p id="visit-counter">Total Visitors: <span id="visit-count">--</span></p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, runTransaction, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            
+            // --- FIREBASE SETUP ---
+            let db;
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                
+                if (Object.keys(firebaseConfig).length > 0) {
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    db = getFirestore(app);
+                    
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    
+                    await handleVisit();
+                } else {
+                    console.warn("Firebase config not found. Visit counter disabled.");
+                    document.getElementById('visit-count').textContent = 'N/A';
+                }
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                document.getElementById('visit-count').textContent = 'Error';
+            }
+
+            async function handleVisit() {
+                if (!db) return;
+                const visitsDocRef = doc(db, `artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/public/data/analytics`, "visits");
+
+                if (!sessionStorage.getItem('visitRecorded')) {
+                    await runTransaction(db, async (transaction) => {
+                        const visitsDoc = await transaction.get(visitsDocRef);
+                        const currentCount = visitsDoc.exists() ? visitsDoc.data().count : 0;
+                        transaction.set(visitsDocRef, { count: currentCount + 1 }, { merge: true });
+                    });
+                    sessionStorage.setItem('visitRecorded', 'true');
+                }
+                
+                await getVisitCount();
+            }
+
+            async function getVisitCount() {
+                if (!db) return 0;
+                const visitsDocRef = doc(db, `artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/public/data/analytics`, "visits");
+                const visitsDoc = await getDoc(visitsDocRef);
+                const count = visitsDoc.exists() ? visitsDoc.data().count : 0;
+                document.getElementById('visit-count').textContent = count;
+                return count;
+            }
+
+            // --- DATA STORE ---
+            const portfolioData = {
+                about: "A CS student with a passion for open-source, self-hosting, and building things that work.\nI thrive on solving problems and learning continuously.\nHobbies: Football, Chess, Photography.",
+                projects: {
+                    'drowsiness-detection': {
+                        title: 'Driver Drowsiness Detection',
+                        description: 'A real-time system using OpenCV and Dlib to track eye aspect ratio and trigger safety alerts. Deployed on a Raspberry Pi for real-world testing.'
+                    },
+                    'mental-health-app': {
+                        title: 'Mental Health Assessment App',
+                        description: 'A full-stack web app for student mental health tracking. Handled UI/UX, form logic, and backend integration with Firebase for real-time data.'
+                    },
+                    'media-server': {
+                        title: 'Self-Hosted Media Server',
+                        description: 'A personal streaming server using Jellyfin, TailScale, and OpenSSH on a dedicated Linux machine, enabling 24/7 media access.'
+                    }
+                },
+                skills: {
+                    'Languages': ['C', 'C++', 'Java', 'Python'],
+                    'Tools & Tech': ['Linux', 'Git', 'OpenSSH', 'Jellyfin', 'TailScale', 'Firebase', 'Self-hosting'],
+                    'Soft Skills': ['Communication', 'Team Building', 'Problem Solving']
+                },
+                setup: {
+                    'Hardware': ['Main PC: Custom Build Desktop', 'Home Server: Repurposed Laptop', 'Prototyping: Raspberry Pi 4'],
+                    'Operating System': ['Daily Driver: Arch Linux', 'Server OS: Ubuntu Server', 'Shell: Zsh with Oh My Zsh'],
+                    'Dev Tools': ['Code Editor: Visual Studio Code', 'Version Control: Git', 'Browser: Firefox Developer Edition']
+                },
+                education: [
+                    "B.Tech in Computer Science @ DES Pune University (2024-2027) | CGPA: 7.71",
+                    "Diploma in Computer Engineering @ Zeal Polytechnic (2021-2024) | 74.66%",
+                    "S.S.C @ M.S. Golwalkar Guruji Vidyalaya (2021) | 71.80%"
+                ],
+                contact: {
+                    email: 'dedgemanas@gmail.com',
+                    linkedin: 'https://linkedin.com/in/manas-dedge',
+                    github: 'https://github.com/ManasDedge08'
+                }
+            };
+
+            // --- THEME COLORS ---
+            const themes = {
+                green: '#39FF14',
+                blue: '#3A86FF',
+                orange: '#FF4500',
+                purple: '#9F7AEA'
+            };
+
+            // --- TERMINAL ELEMENTS & LOGIC ---
+            const terminalView = document.getElementById('terminal-view');
+            const output = document.getElementById('terminal-output');
+            const input = document.getElementById('terminal-input');
+            const promptEl = document.getElementById('prompt');
+            const user = 'manas';
+            const host = 'ManasOS';
+            let commandHistory = [];
+            let historyIndex = -1;
+
+            const updatePrompt = () => {
+                promptEl.innerHTML = `<span class="prompt-user">${user}</span><span class="prompt-host">@${host}</span><span class="prompt-symbol">:~$ </span>`;
+            };
+
+            const typeWriter = (text, onComplete) => {
+                let i = 0;
+                const speed = 15;
+                const line = document.createElement('div');
+                line.classList.add('command-output');
+                output.appendChild(line);
+
+                function type() {
+                    if (i < text.length) {
+                        line.innerHTML += text.charAt(i);
+                        i++;
+                        terminalView.scrollTop = terminalView.scrollHeight;
+                        setTimeout(type, speed);
+                    } else if (onComplete) {
+                        onComplete();
+                    }
+                }
+                type();
+            };
+            
+            const executeCommand = async (cmd) => {
+                const parts = cmd.toLowerCase().split(' ').filter(p => p);
+                const command = parts[0];
+                const args = parts.slice(1);
+                let response = '';
+
+                switch (command) {
+                    case 'help':
+                        response = `Available Commands:\n` +
+                                   `  <span class="title">about</span>      - Who I am\n` +
+                                   `  <span class="title">projects</span>   - View my work (e.g., 'projects media-server')\n` +
+                                   `  <span class="title">skills</span>     - What I can do\n` +
+                                   `  <span class="title">setup</span>      - My hardware and software setup\n` +
+                                   `  <span class="title">education</span>  - My academic journey\n` +
+                                   `  <span class="title">contact</span>    - How to reach me\n` +
+                                   `  <span class="title">visits</span>     - Show total site visits\n` +
+                                   `  <span class="title">theme &lt;color&gt;</span> - Change accent color (green, blue, orange, purple)\n` +
+                                   `  <span class="title">all</span>        - Display all information\n` +
+                                   `  <span class="title">gui</span>        - Switch to graphical user interface\n` +
+                                   `  <span class="title">clear</span>      - Clear the terminal screen`;
+                        break;
+                    case 'about':
+                        response = `<span class="title">--- About Me ---</span>\n${portfolioData.about}`;
+                        break;
+                    case 'projects':
+                        if (args.length > 0) {
+                            const projectKey = Object.keys(portfolioData.projects).find(k => k.includes(args[0]));
+                            if (projectKey) {
+                                const project = portfolioData.projects[projectKey];
+                                response = `<span class="title">--- ${project.title} ---</span>\n${project.description}`;
+                            } else {
+                                response = `Error: Project '${args[0]}' not found.`;
+                            }
+                        } else {
+                            response = `<span class="title">--- Projects ---</span>\n` +
+                                       Object.keys(portfolioData.projects).map(p => `  - ${p}`).join('\n') +
+                                       `\nType 'projects <project_name>' for details.`;
+                        }
+                        break;
+                    case 'skills':
+                        response = `<span class="title">--- Skills ---</span>\n` +
+                                   Object.entries(portfolioData.skills).map(([category, skillsList]) => 
+                                       `  ${category}:\n    ${skillsList.join(', ')}`
+                                   ).join('\n');
+                        break;
+                    case 'setup':
+                        response = `<span class="title">--- My Setup ---</span>\n` +
+                                   Object.entries(portfolioData.setup).map(([category, items]) => 
+                                       `  ${category}:\n    ${items.join('\n    ')}`
+                                   ).join('\n');
+                        break;
+                    case 'education':
+                        response = `<span class="title">--- Education ---</span>\n` +
+                                   portfolioData.education.map(e => `  - ${e}`).join('\n');
+                        break;
+                    case 'contact':
+                        response = `<span class="title">--- Contact ---</span>\n` +
+                                   `  Email:    <a href="mailto:${portfolioData.contact.email}">${portfolioData.contact.email}</a>\n` +
+                                   `  LinkedIn: <a href="${portfolioData.contact.linkedin}" target="_blank">${portfolioData.contact.linkedin}</a>\n` +
+                                   `  GitHub:   <a href="${portfolioData.contact.github}" target="_blank">${portfolioData.contact.github}</a>`;
+                        break;
+                    case 'visits':
+                        const count = await getVisitCount();
+                        response = `Total site visits: ${count}`;
+                        break;
+                    case 'theme':
+                        if (args[0] && themes[args[0]]) {
+                            document.documentElement.style.setProperty('--accent-color', themes[args[0]]);
+                            response = `Theme changed to ${args[0]}.`;
+                        } else {
+                            response = `Error: Invalid theme. Available: ${Object.keys(themes).join(', ')}.`;
+                        }
+                        break;
+                    case 'gui':
+                    case 'startx':
+                        response = 'Loading graphical user interface...';
+                        switchToGui();
+                        break;
+                    case 'clear':
+                        output.innerHTML = '';
+                        break;
+                    case 'all':
+                        const allCommands = ['about', 'projects', 'skills', 'setup', 'education', 'contact'];
+                        let i = 0;
+                        const runAll = () => {
+                            if (i < allCommands.length) {
+                                const currentCmd = allCommands[i];
+                                addLineToOutput(currentCmd);
+                                executeCommand(currentCmd);
+                                i++;
+                                setTimeout(runAll, 500); // Delay between commands
+                            }
+                        }
+                        runAll();
+                        return; // Prevent default response printing
+                    default:
+                        if(cmd) response = `command not found: ${cmd}. Type 'help' for a list of commands.`;
+                }
+                
+                if (response) typeWriter(response);
+            };
+            
+            const addLineToOutput = (command) => {
+                const line = document.createElement('div');
+                line.classList.add('terminal-line');
+                line.innerHTML = `<span class="prompt-user">${user}</span><span class="prompt-host">@${host}</span><span class="prompt-symbol">:~$ </span><span>${command}</span>`;
+                output.appendChild(line);
+            }
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const command = input.value.trim();
+                    if (command) {
+                        addLineToOutput(command);
+                        commandHistory.unshift(command);
+                        historyIndex = -1;
+                    }
+                    executeCommand(command);
+                    input.value = '';
+                    terminalView.scrollTop = terminalView.scrollHeight;
+                } else if (e.key === 'ArrowUp') {
+                    if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        input.value = commandHistory[historyIndex];
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        input.value = commandHistory[historyIndex];
+                    } else {
+                        historyIndex = -1;
+                        input.value = '';
+                    }
+                }
+            });
+
+            // --- GUI VIEW & SWITCHING LOGIC ---
+            const guiView = document.getElementById('gui-view');
+            const guiSwitchLink = document.createElement('a');
+            guiSwitchLink.id = 'gui-switch-link';
+            guiSwitchLink.textContent = 'Click here for the graphical version.';
+            
+            const guiSwitchContainer = document.createElement('div');
+            guiSwitchContainer.id = 'gui-switch';
+            guiSwitchContainer.innerHTML = `Not a fan of terminals? `;
+            guiSwitchContainer.appendChild(guiSwitchLink);
+
+            const switchToGui = () => {
+                terminalView.classList.add('hidden');
+                guiView.classList.remove('hidden');
+            };
+
+            guiSwitchLink.addEventListener('click', switchToGui);
+
+            // --- GUI View JS ---
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const navMenu = document.getElementById('nav-menu');
+            mobileMenuBtn.addEventListener('click', () => navMenu.classList.toggle('active'));
+            document.querySelectorAll('#gui-view .nav-btn').forEach(link => {
+                link.addEventListener('click', () => navMenu.classList.contains('active') && navMenu.classList.remove('active'));
+            });
+            
+            window.addEventListener('scroll', () => {
+                let current = '';
+                document.querySelectorAll('#gui-view .section').forEach(section => {
+                    if (pageYOffset >= section.offsetTop - 75) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                document.querySelectorAll('#gui-view .nav-links a').forEach(a => {
+                    a.classList.remove('active');
+                    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+                });
+            });
+
+            // --- INITIALIZATION ---
+            const init = () => {
+                updatePrompt();
+                input.focus();
+                const welcomeMessage = `Welcome to ManasOS v1.0\nSystem checking... All systems nominal.\nType 'help' to see a list of available commands.\n`;
+                typeWriter(welcomeMessage, () => {
+                    output.appendChild(guiSwitchContainer);
+                });
+            };
+
+            init();
+        });
+    </script>
+</body>
+</html>
